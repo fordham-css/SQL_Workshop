@@ -1,0 +1,248 @@
+\documentclass[aspectratio=169]{beamer}
+\usepackage{hyperref}
+\usepackage{mybeamerdark}
+\usepackage{tikz}
+\colorlet{lightgray}{gray!20}
+\usetikzlibrary{shapes,positioning,calc}
+
+\lstset{
+    language=C++,
+    tabsize=4, % tab space width
+    showstringspaces=false, % don't mark spaces in strings
+    numbers=left, % display line numbers on the left
+    basicstyle=\ttfamily,
+    numberstyle=\color{comment}\ttfamily, % Line numbers
+    commentstyle=\color{comment}\ttfamily, % comment color
+    otherkeywords={>,<,-,!,=,~}, % Color operators too
+    morekeywords={>,<,-,!,=,~},
+    keywordstyle=\color{keyword}\ttfamily, % keyword color
+    stringstyle=\color{string}\ttfamily, % string color
+    morecomment=[l][\color{keyword}]{\#},
+    emph={int,char,long,float,double,unsigned,namespace,typename},
+    emphstyle={\color{types}\ttfamily\textit},
+    escapeinside={@!}{!@},
+    captionpos=b
+}
+
+
+\title{Intro to SQL}
+\subtitle{Focusing on Sqlite}
+\author{Richard Morrill}
+\institute{Fordham University CS Society}
+\logo{\includegraphics[width=2cm]{css_logo_color.png}}
+\date{Wednesday, February 26th, 2020}
+
+\begin{document}
+\begin{frame}
+    \titlepage
+\end{frame}
+
+\begin{frame}
+    \frametitle{Game Plan}
+
+    \begin{itemize}
+        \item Installing Sqlite
+        \item Why you need SQL
+        \item What is SQL
+        \item What is Sqlite
+        \item Basics of SQL syntax and database design
+        \item How adding a SQL\footnote[frame]{If pronounced ``sequel'', ``a'' is the correct article.} database to an existing project can
+              simplify your code
+    \end{itemize}
+
+\end{frame}
+\begin{frame}[fragile]
+    \frametitle{Let's get it Installed!}
+
+    \begin{columns}
+        \begin{column}{0.4\textwidth}
+            \underline{Mac and Linux}\\
+            \small{
+                There's a 99\% chance it's already installed.  Open a terminal
+                window and try \code{sqlite3}, and if that doesn't work,
+                \code{sqlite}.  If for some reason your OS didn't come with it,
+                install it at \url{https://www.sqlite.org}
+            }
+        \end{column}
+        \begin{column}{0.4\textwidth}
+            \underline{Windows}\\
+            \small{
+                You could have unknowingly installed Sqlite when installing
+                something else.  Give it a try in Powershell or CMD, but it's likley
+                you'll need to install Sqlite at: \url{https://www.sqlite.org}
+            }
+        \end{column}
+    \end{columns}
+    ~\\~\\
+    If it works you will see:\\
+    (The specific version does not matter.)
+    \begin{verbatim}
+SQLite version 3.30.0 2019-10-04 15:03:17
+Enter ".help" for usage hints.
+Connected to a transient in-memory database.
+Use ".open FILENAME" to reopen on a persistent database.
+sqlite>
+    \end{verbatim}
+\end{frame}
+\begin{frame}
+    \frametitle{What's the point of this, anyways?}
+
+    Non-CS majors that don't know SQL say, ``Can't I just use a GUI tool like MS
+    Access?''
+    \vfill
+    CS majors that don't know SQL say, ``There's plenty of tools in the language I'm already using, why do I need another one?''
+\end{frame}
+
+\begin{frame}
+    \frametitle{The power of SQL}
+    \begin{itemize}
+        \item SQL is a \emph{declarative language}.\pause You don't need to
+        worry about \emph{how} the database engine is going to do something,
+        just tell it what you \emph{want it to do}.
+        \pause
+        \begin{itemize}
+            \item SQL lets you think about your data on a higher level than if you
+                  were dealing with it in objects and arrays.
+            \item Learning to think \emph{declaratively} can help you write more
+            readable code, even when working in languages other than SQL.
+        \end{itemize}
+        \pause
+        \item Even if your language provides its own set of
+        data-manipulation tools, they're probably just different names
+        for things SQL already does.
+        \pause
+        \begin{itemize}
+            \item If you learn to use the real thing, you'll be able to figure out
+                  pretty much any pseudo-sql stuff you come across.
+        \end{itemize}
+        \pause
+        \item SQL gets to the point.
+    \end{itemize}
+\end{frame}
+\begin{frame}
+    \frametitle{A Bit About SQL}
+    \begin{itemize}
+        \item \emph{Structured Query language}
+        \pause
+        \item Developed by IBM in the 1970s
+        \pause
+        \begin{itemize}
+            \item Like other languages developed by committee, has its weird
+            bits.
+            \item Syntax isn't always consistent with itself. 
+        \end{itemize}
+        \pause
+        \item The gold standard for managing \emph{relational databases}.
+        \pause
+        \begin{itemize}
+            \item A bit of a victim of its popularity, SQL isn't always
+            implemented identically across database software from different
+            vendors.
+            \item 90\% of syntax is the same, but some things you ``get away
+            with'' on one database you won't in others.
+        \end{itemize}
+        \pause
+        \item Technically a fully-fledged programming language, although rarely used this way\only<6->\footnote[frame]{With one important exception we'll see later.}.
+    \end{itemize}
+\end{frame}
+\begin{frame}[fragile]
+    \frametitle{Relational Databases}
+
+    Very few pieces of data exist in a vacuum\\
+    \pause
+    \vfill
+    \begin{tikzpicture}[relation/.style={rectangle split, rectangle split parts=#1, rectangle split part align=base, draw, anchor=center, align=center, text height=3mm, text centered}]
+        \node (departmenttitle) {\textbf{Department}};
+
+        \node [relation=3, rectangle split horizontal, rectangle split part fill={comment}, anchor=north west, below=0.6cm of departmenttitle.west, anchor=west] (department)
+        {\underline{Name}%
+        \nodepart{two}   Manager
+        \nodepart{three} Building};
+        
+        \node [below=1.3cm of department.west, anchor=west] (employeetitle) {\textbf{Employee}};
+
+        \node [relation=5, rectangle split horizontal, rectangle split part fill={comment}, anchor=north west, below=0.6cm of employeetitle.west, anchor=west] (employee)
+        {\underline{Id Number}%
+        \nodepart{two}   Name
+        \nodepart{three} Email
+        \nodepart{four}  Supervisor
+        \nodepart{five} Department};
+
+        \pause
+        \draw[-latex] (employee.five south) -- ++(0,-0.5) -| ($(employee.five south) + (2,0)$) |- ($(department.one south) + (0.25,-0.50)$) -| ($(department.one south) + (0.25,0)$);
+        \pause
+        \draw[-latex] (employee.four south) -- ++(0,-0.5) |- ($(employee.one south) + (0.25,-0.5)$) -| ($(employee.one south) + (0.25,0)$);
+    \end{tikzpicture}\\
+    Insert about 100 more tables here \dots
+\end{frame}
+\begin{frame}
+    \frametitle{Consistency}
+    \begin{itemize}
+        \item Consistency is key to making relational systems work smoothly.
+        \begin{itemize}
+            \item Imagine what would happen if half of the employees called
+            their department ``facilities'', while the other half called it
+            ``maintenance''.
+        \end{itemize}
+        \pause
+        \item With many different sources of data and users, maintaining
+        consistency can be very difficult.
+        \pause
+        \begin{itemize}
+            \item You can educate users $\rightarrow$ Like that's gonna happen\dots
+            \pause
+            \item You can write code that ``gaurds'' your data store $\rightarrow$ Closer, but what if you make a mistake?
+        \end{itemize}
+        \pause
+        \item SQL builds consistency protection directly into the data storage\only<5->\footnote[frame]{This is assuming the SQL database is set up properly.}.
+        \pause
+        \begin{itemize}
+            \item Bad data is rejected\dots No Exceptions!
+            \item Strict column types
+            \item Foreign keys: Can't insert an employee if his department is non-existent.
+            \item Triggers: Arbitrary code that can stop mistakes in their tracks.
+        \end{itemize}
+    \end{itemize}
+\end{frame}
+\begin{frame}[fragile]
+    \frametitle{Basics of SQL: Making a Table}
+    \begin{enumerate}
+        \item Open a terminal.
+        \item Navigate to a directory you can use for temporary files.
+        \item Type in \code{\$ sqlite demo.db}
+        \item On the \code{sqlite>} prompt that will come up, enter the commands below.
+    \end{enumerate}
+    IN SQL WE ALWAYS SHOUT!
+    \begin{lstlisting}[language=SQL]
+CREATE TABLE "employee" (
+    "id" INTEGER PRIMARY KEY,
+    "name" VARCHAR,
+    "dob" VARCHAR,
+    "joinDate" VARCHAR
+);
+    \end{lstlisting}
+    To see if it worked:\\\code{.tables}\\\code{.schema "employee"}
+\end{frame}
+\begin{frame}[fragile]
+    \frametitle{Basics of SQL: Inserting and Reading Data}
+    To make things more readable:\\
+    \code{.mode column}\\
+    \code{.nullvalue NULL}\\
+    \code{.headers on}\\~\\
+    Add Some Data:
+    \begin{lstlisting}[language=SQL]
+INSERT INTO "employee"
+    VALUES (12, "Sam Smith", "1980-05-06", "2008-06-22");
+INSERT INTO "employee" (id, "dob")
+    VALUES (44, "1968-04-18");   
+    \end{lstlisting}
+    Read It Back:
+    \begin{lstlisting}[language=SQL]
+SELECT * FROM "employee";
+SELECT "id", "name" FROM "employee";
+    \end{lstlisting}
+
+    
+
+\end{frame}
+\end{document}

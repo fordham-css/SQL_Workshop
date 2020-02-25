@@ -1,0 +1,10 @@
+doc/*
+!doc/*.png
+!*.tex
+!*.pdf
+
+demo.db
+
+.vs
+[bB]uild
+[oO]ut

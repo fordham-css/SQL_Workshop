@@ -1,0 +1,46 @@
+\NeedsTeXFormat{LaTeX2e}[1994/06/01]
+\ProvidesPackage{mybeamerdark}[2020/02/23 My Dark Theme]
+
+\RequirePackage{listings}
+
+\definecolor{background}{RGB}{39, 40, 34}
+\definecolor{string}{RGB}{230, 219, 116}
+\definecolor{comment}{RGB}{117, 113, 94}
+\definecolor{normal}{RGB}{248, 248, 242}
+\definecolor{identifier}{RGB}{166, 226, 46}
+\definecolor{keyword}{HTML}{F92672}
+\definecolor{numbers}{HTML}{AE81FF}
+\definecolor{types}{HTML}{66D9EF}
+
+\newcommand{\code}{\texttt}
+\newcommand{\fn}{\color{identifier}}
+
+\usetheme{Warsaw}
+
+\addtobeamertemplate{footnote}{\vspace{-6pt}\advance\hsize-0.5cm}{\vspace{6pt}}
+\makeatletter
+% Alternative A: footnote rule
+\renewcommand*{\footnoterule}{\kern -3pt \hrule \@width 2in \kern 8.6pt}
+% Alternative B: no footnote rule
+% \renewcommand*{\footnoterule}{\kern 6pt}
+\makeatother
+
+\setbeamercolor{normal text}{fg=normal,bg=background}
+\setbeamercolor{structure}{fg=normal}
+
+\setbeamercolor{alerted text}{fg=red!85!black}
+
+\setbeamercolor{item projected}{use=item,fg=background,bg=item.fg!35}
+
+\setbeamercolor*{palette primary}{use=structure,fg=structure.fg}
+\setbeamercolor*{palette secondary}{use=structure,fg=structure.fg!95!black}
+\setbeamercolor*{palette tertiary}{use=structure,fg=structure.fg!90!black}
+\setbeamercolor*{palette quaternary}{use=structure,fg=structure.fg!95!black,bg=black!80}
+
+\setbeamercolor*{framesubtitle}{fg=normal}
+
+\setbeamercolor*{block title}{parent=structure,bg=background}
+\setbeamercolor*{block body}{fg=black,bg=background}
+\setbeamercolor*{block title alerted}{parent=alerted text,bg=background}
+\setbeamercolor*{block title example}{parent=example text,bg=background}
+\endinput
