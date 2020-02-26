@@ -241,6 +241,104 @@ INSERT INTO "employee" (id, "dob")
 SELECT * FROM "employee";
 SELECT "id", "name" FROM "employee";
     \end{lstlisting}
+\end{frame}
+\begin{frame}[fragile]
+    \frametitle{Basics of SQL: Inserting and Reading Data}
+    \framesubtitle{WHERE Conditions and ORDER BY}
+    By default, SELECT returns all rows. \pause While you can simply iterate
+    through the results in your own code to get the ones you want, there is a
+    better way:
+    \begin{lstlisting}[language=SQL]
+SELECT * FROM "employee" WHERE id = 12;
+SELECT * FROM "employee" WHERE id = 44 LIMIT 1;
+    \end{lstlisting}
+    There are many different conditions available in SQL.
+    \pause
+    The database engine is also very efficient at sorting data:
+    \begin{lstlisting}[language=SQL]
+SELECT * FROM "Employee" ORDER BY "dob" DESC;
+    \end{lstlisting}
+    How could we get the oldest employee?
+    \pause
+    \begin{lstlisting}[language=SQL]
+SELECT * FROM "employee" ORDER BY "dob" ASC LIMIT 1;
+    \end{lstlisting}
+    Note that there is a MAX() function in SQL, but it probably won't work the
+    way you expect.
+\end{frame}
+\begin{frame}[fragile]
+    \frametitle{Basics of SQL: Deleting Data}
+    Deleting in SQL is pretty intuitive:
+    \begin{lstlisting}[language=SQL]
+DELETE FROM "employee";
+    \end{lstlisting}
+    What just got deleted?\\
+    \pause
+    If you want to delete specific records, you need to use WHERE:
+    \begin{lstlisting}[language=SQL]
+DELETE FROM "employee" WHERE id = 12;
+    \end{lstlisting}
+    \pause
+    To delete a table, you use DROP not DELETE:
+    \begin{lstlisting}[language=SQL]
+DROP TABLE "employee";
+    \end{lstlisting}
+    The convention of using DELETE for \emph{data} and DROP for \emph{structures} is widely used in SQL.
+\end{frame}
+\begin{frame}
+    \frametitle{Basics of SQL: Constraints}
+
+    A constraint is anything you set up in that controls what data may be put where.
+    \pause
+    \begin{itemize}
+        \item Primary Keys
+        \begin{itemize}
+            \item Must be unique
+            \item \emph{Tables exist to store primary keys, the other fields describe the primary key.}
+            \item Database engine optimizes queries involving primary key
+        \end{itemize}
+        \pause
+        \item Foreign Keys
+        \begin{itemize}
+            \item The primary key\only<3->\footnote[frame]{Sometimes it can be
+            another field, but this is not recommended} of another table, stored
+            as a regular column in your table
+            \item Database engine will enforce the validity of whatever value
+            you attempt to insert (e.g. can't insert an employee with a
+            nonexistent department)
+            \item Advanced Topic: You can control what happens to dependant rows
+            on delete
+        \end{itemize}
+        \pause
+        \item Other Keys / Indices
+        \begin{itemize}
+            \item The terms ``key'' and ``index'' have overlapping meanings
+            \item You can arbitrarily enforce uniqueness on any column
+            \item You can tell the database engine to optimize queries involving
+            any column
+        \end{itemize}
+    \end{itemize}
+\end{frame}
+\begin{frame}[fragile]
+    \frametitle{Foreign Keys}
+    First, enable foreign keys:
+    \begin{lstlisting}[language=SQL]
+PRAGMA foreign_keys = ON;
+    \end{lstlisting}
+    Let's make a table with a foreign key:
+    \begin{lstlisting}[language=SQL]
+CREATE TABLE customer (
+    id INTEGER PRIMARY KEY,
+    name VARCHAR,
+    contact INTEGER,
+    FOREIGN KEY (contact) REFERENCES employee(id)
+);
+    \end{lstlisting}
+    \pause
+    Now try to insert a customer whose contact has Id 99
+\end{frame}
+\begin{frame}
+    \frametitle{Joins}
 
     
 
